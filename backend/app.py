@@ -285,14 +285,14 @@ def create_app() -> Flask:
             probability_poisonous = displayed_score
         confidence = displayed_score
         min_confidence = get_min_confidence()
-        signals = {"image_size": {"width": image.width, "height": image.height}, "model_source": "openai_vision", "model_name": OPENAI_MODEL, "minimum_accepted_confidence": min_confidence}
+        signals = {"image_size": {"width": image.width, "height": image.height}, "model_source": "TensorFlow / Keras", "model_name": "mushroom_classifier.keras", "minimum_accepted_confidence": min_confidence}
         if prediction_label == "not_mushroom":
             response = {
                 "prediction": "not_mushroom",
                 "confidence": round(confidence, 2),
                 "poisonous_probability": probability_poisonous,
                 "edible_probability": edible_probability,
-                "risk_level": "unknown",
+                "risk_level": "none",
                 "reasons": model_result.get("reasons") or ["The image does not clearly show a mushroom.", "Retake the photo with a clear mushroom cap, stem, and underside visible."],
                 "vision_signals": signals,
                 "model": model_result,
