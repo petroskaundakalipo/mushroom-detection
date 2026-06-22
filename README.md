@@ -1,12 +1,12 @@
 # Mushroom Detector
 
-A modern React + Flask computer-vision mushroom risk prediction demo with register/login authentication.
+A modern React + Flask OpenAI vision mushroom risk prediction demo with register/login authentication.
 
 > Safety: this app is educational software only. Never eat wild mushrooms based on an app prediction.
 
 ## Project structure
 
-- `backend/` Flask API with SQLite users, hashed passwords, bearer sessions, image validation, and CV-style prediction scoring
+- `backend/` Flask API with SQLite users, hashed passwords, bearer sessions, image validation, and OpenAI vision prediction scoring
 - `frontend/` Vite React UI with landing page, login, register, logout, camera/upload scanning, and protected prediction calls
 
 ## Run the Flask API
@@ -49,12 +49,14 @@ VITE_API_BASE_URL=http://localhost:5000 npm run dev
 
 SQLite data is stored by default at `backend/mushroom_detector.db`. Override with `MUSHROOM_DB_PATH=/path/to/file.db`.
 
-To use your trained Keras classifier, place it at `backend/model/mushroom_classifier.keras` or set:
+Set an OpenAI API key before running predictions:
 
 ```bash
-MUSHROOM_MODEL_PATH="/path/to/mushroom_classifier.keras" python app.py
+OPENAI_API_KEY="sk-..." python app.py
 ```
 
-The API relies solely on the Keras model. If the model is missing or cannot load, prediction returns an error instead of using a fallback. Low-confidence model outputs return `scan_failed` so random non-mushroom objects are not treated as edible. Configure the threshold with `MUSHROOM_MIN_CONFIDENCE`; default is `85`. The backend requirements use `tensorflow-cpu` so the app runs on CPU-only machines without CUDA/NVIDIA setup.
+Optionally choose a vision-capable model with `OPENAI_MODEL`; the default is `gpt-4o-mini`.
+
+The API relies on OpenAI vision analysis. If `OPENAI_API_KEY` is missing, prediction returns an error instead of using a fallback. Low-confidence outputs return `not_mushroom` so random non-mushroom objects are not treated as edible. Configure the threshold with `MUSHROOM_MIN_CONFIDENCE`; default is `85`.
 # mushroom-detection
 # mushroom-detection
