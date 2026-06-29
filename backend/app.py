@@ -190,6 +190,10 @@ def create_app() -> Flask:
     app = Flask(__name__)
     CORS(app, resources={r"/api/*": {"origins": "*"}})
 
+    @app.get("/")
+    def index() -> tuple[Any, int]:
+        return jsonify({"status": "ok", "service": "mushroom-detector", "docs": "/api/health"}), 200
+
     @app.get("/api/health")
     def health() -> tuple[dict[str, str], int]:
         return {"status": "ok", "service": "mushroom-detector"}, 200
