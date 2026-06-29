@@ -26,7 +26,7 @@ DEFAULT_MIN_CONFIDENCE = float(os.environ.get("MUSHROOM_MIN_CONFIDENCE", "85"))
 OPENAI_CLIENT: OpenAI | None = None
 OPENAI_LOAD_ERROR: str | None = None
 TOKEN_BYTES = 32
-MIN_PREDICTION_SECONDS = float(os.environ.get("MUSHROOM_MIN_PREDICTION_SECONDS", "8"))
+MIN_PREDICTION_SECONDS = float(os.environ.get("MUSHROOM_MIN_PREDICTION_SECONDS", "15"))
 
 
 def get_db() -> sqlite3.Connection:
