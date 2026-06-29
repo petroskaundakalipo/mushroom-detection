@@ -290,6 +290,23 @@ def create_app() -> Flask:
         confidence = displayed_score
         min_confidence = get_min_confidence()
         signals = {"image_size": {"width": image.width, "height": image.height}, "model_source": "TensorFlow / Keras", "model_name": "mushroom_classifier.keras", "minimum_accepted_confidence": min_confidence}
+        static_reasons = {
+            "not_mushroom": [
+                "No mushroom was detected in the uploaded image.",
+                "Please retake the photo focusing clearly on the mushroom.",
+                "Ensure the cap, stem, and underside are fully visible in the frame.",
+            ],
+            "edible": [
+                "The mushroom displays characteristics commonly associated with edible species.",
+                "Cap shape, colour, and gill structure appear consistent with known edible varieties.",
+                "Always verify with an expert before consuming any wild mushroom.",
+            ],
+            "poisonous": [
+                "The mushroom displays characteristics associated with potentially toxic species.",
+                "Distinctive markings, cap shape, or gill patterns suggest elevated risk.",
+                "Do not consume this mushroom under any circumstances.",
+            ],
+        }
         if prediction_label == "not_mushroom":
             response = {
                 "prediction": "not_mushroom",
@@ -297,7 +314,7 @@ def create_app() -> Flask:
                 "poisonous_probability": probability_poisonous,
                 "edible_probability": edible_probability,
                 "risk_level": "none",
-                "reasons": model_result.get("reasons") or ["The image does not clearly show a mushroom.", "Retake the photo with a clear mushroom cap, stem, and underside visible."],
+                "reasons": static_reasons["not_mushroom"],
                 "vision_signals": signals,
                 "model": model_result,
                 "user": public_user(user),
@@ -311,7 +328,7 @@ def create_app() -> Flask:
             "poisonous_probability": probability_poisonous,
             "edible_probability": edible_probability,
             "risk_level": risk_level(probability_poisonous),
-            "reasons": model_result.get("reasons") or [f"OpenAI vision assessment predicted {model_result['predicted_class'].replace('_', ' ')}."],
+            "reasons": static_reasons[prediction_label],
             "vision_signals": signals,
             "model": model_result,
             "user": public_user(user),
