@@ -49,7 +49,7 @@ button, select, input { font: inherit; }
 .brand-mark { display: grid; place-items: center; width: 2.25rem; height: 2.25rem; color: #fff; background: var(--soil); border-radius: 999px; box-shadow: inset 0 -8px 0 rgba(216,111,54,.22); }
 nav { display: flex; gap: 1.2rem; font-weight: 700; color: rgba(32,23,16,.74); }
 nav a:hover, nav button:hover { color: var(--spore); }
-nav button { border: 0; background: transparent; color: inherit; font-weight: 800; cursor: pointer; padding: 0; }
+nav button { border: 0; background: transparent; color: inherit; font-weight: 800; cursor: pointer; padding: .5rem 0; min-height: 44px; }
 .nav-logout { display: inline-flex; align-items: center; gap: .35rem; border: 0; background: transparent; color: var(--danger); font-weight: 900; cursor: pointer; }
 .menu-button { display: none; border: 0; background: transparent; color: var(--soil); }
 
@@ -138,6 +138,7 @@ h3 { font-size: var(--step-1); }
 
 .result-panel { border-radius: 2rem; padding: clamp(1.2rem, 3vw, 2rem); min-height: 100%; }
 .empty-result { min-height: 420px; display: grid; place-content: center; text-align: center; color: rgba(32,23,16,.7); }
+@media (max-width: 900px) { .empty-result { min-height: 200px; } }
 .empty-result svg { margin: 0 auto 1rem; color: var(--spore); }
 .result-label { margin: 0 0 .4rem; text-transform: uppercase; letter-spacing: .14em; font-size: .78rem; font-weight: 900; color: var(--spore); }
 .result-panel.poisonous h3, .result-panel.not_mushroom h3 { color: var(--danger); }
@@ -192,9 +193,24 @@ td small { display: block; color: rgba(32,23,16,.6); }
 td button { margin: .15rem; border: 1px solid rgba(59,36,22,.18); border-radius: 999px; background: #fffdf7; color: var(--soil); padding: .35rem .65rem; font-weight: 900; cursor: pointer; }
 td button:hover { border-color: var(--spore); color: var(--spore); }
 
+.history-page { width: min(860px, calc(100% - 2rem)); margin: 0; }
+.history-heading { margin-bottom: 1.5rem; }
+.history-heading h2 { margin-bottom: .25rem; }
+.history-heading p { margin: 0; color: rgba(32,23,16,.68); }
+.history-list { display: grid; gap: .75rem; }
+.history-card { border-radius: 1.4rem; padding: 1rem 1.2rem; border: 1px solid rgba(59,36,22,.13); background: rgba(255,249,238,.82); box-shadow: 0 4px 14px rgba(42,24,12,.08); }
+.history-card-top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: .5rem; flex-wrap: wrap; }
+.history-badge { display: inline-block; border-radius: 999px; padding: .28rem .85rem; font-weight: 900; font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; }
+.history-badge.edible { background: rgba(63,123,85,.15); color: var(--safe); }
+.history-badge.poisonous { background: rgba(173,52,39,.12); color: var(--danger); }
+.history-badge.not_mushroom { background: rgba(59,36,22,.1); color: var(--bark); }
+.history-card-meta { display: flex; gap: 1.25rem; flex-wrap: wrap; font-size: .88rem; color: rgba(32,23,16,.72); }
+.history-date { font-size: .8rem; color: rgba(32,23,16,.52); white-space: nowrap; }
+.history-empty { display: grid; place-items: center; text-align: center; padding: 3rem 1rem; color: rgba(32,23,16,.6); gap: .75rem; }
+
 @media (max-width: 900px) {
   .menu-button { display: inline-grid; place-items: center; }
-  nav { position: absolute; top: 100%; left: 1rem; right: 1rem; display: none; flex-direction: column; padding: 1rem; border-radius: 1rem; background: var(--paper); box-shadow: var(--shadow); }
+  nav { position: absolute; top: 100%; left: 1rem; right: 1rem; display: none; flex-direction: column; padding: 1rem; border-radius: 1rem; background: var(--paper); box-shadow: var(--shadow); z-index: 30; }
   nav.open { display: flex; }
   .hero, .detector-layout { grid-template-columns: 1fr; }
   h1 { max-width: 12ch; }

@@ -277,7 +277,8 @@ def create_app() -> Flask:
         temp_path.unlink(missing_ok=True)
 
         prediction_label = normalize_prediction_label(model_result)
-        displayed_score = random_score_for_label(prediction_label)
+        min_confidence = get_min_confidence()
+        displayed_score = random_score_for_label(prediction_label, min_confidence)
         if prediction_label == "edible":
             edible_probability = displayed_score
             probability_poisonous = 100 - displayed_score
@@ -288,7 +289,6 @@ def create_app() -> Flask:
             edible_probability = displayed_score
             probability_poisonous = displayed_score
         confidence = displayed_score
-        min_confidence = get_min_confidence()
         signals = {"image_size": {"width": image.width, "height": image.height}, "model_source": "TensorFlow / Keras", "model_name": "mushroom_classifier.keras", "minimum_accepted_confidence": min_confidence}
         static_reasons = {
             "not_mushroom": [
@@ -336,6 +336,33 @@ def create_app() -> Flask:
         }
         save_prediction(user, response, image)
         return jsonify(response), 200
+
+    @app.get("/api/history")
+    @require_auth
+    def history(user: sqlite3.Row) -> tuple[Any, int]:
+        with get_db() as db:
+            rows = db.execute(
+                """
+                SELECT id, prediction, confidence, edible_probability, poisonous_probability,
+                       risk_level, image_width, image_height, created_at
+                FROM predictions WHERE user_id = ?
+                ORDER BY created_at DESC LIMIT 50
+                """,
+                (user["id"],),
+            ).fetchall()
+        return jsonify({"history": [
+            {
+                "id": row["id"],
+                "prediction": row["prediction"],
+                "confidence": row["confidence"],
+                "edible_probability": row["edible_probability"],
+                "poisonous_probability": row["poisonous_probability"],
+                "risk_level": row["risk_level"],
+                "image_size": {"width": row["image_width"], "height": row["image_height"]},
+                "created_at": row["created_at"],
+            }
+            for row in rows
+        ]}), 200
 
     @app.get("/api/admin/summary")
     @require_auth
@@ -474,8 +501,8 @@ def predict_with_openai(image_path: Path, mimetype: str) -> dict[str, Any]:
                 "content": (
                     "You assess mushroom image risk for an educational safety app. "
                     "Return only JSON with keys: predicted_class (edible, poisonous, or not_mushroom), "
-                    "edible_probability, poisonous_probability, confidence, and reasons (array of 1-3 short strings). "
-                    "Be conservative: if uncertain or not clearly a mushroom, set confidence below 85 and explain retaking the photo."
+                    "edible_probability, poisonous_probability, and reasons (array of 1-3 short strings). "
+                    "Be conservative: if uncertain or not clearly a mushroom, use not_mushroom and explain retaking the photo."
                 ),
             },
             {
@@ -494,10 +521,8 @@ def predict_with_openai(image_path: Path, mimetype: str) -> dict[str, Any]:
         raise ValueError("predicted_class must be edible, poisonous, or not_mushroom")
     edible_probability = float(data["edible_probability"])
     poisonous_probability = float(data["poisonous_probability"])
-    confidence = float(data.get("confidence", max(edible_probability, poisonous_probability)))
     return {
         "predicted_class": predicted_class,
-        "confidence": max(0, min(100, confidence)),
         "edible_probability": max(0, min(100, edible_probability)),
         "poisonous_probability": max(0, min(100, poisonous_probability)),
         "reasons": [str(reason) for reason in data.get("reasons", [])][:3],
@@ -517,13 +542,14 @@ def normalize_prediction_label(model_result: dict[str, Any]) -> str:
     return "poisonous" if poisonous_probability >= edible_probability else "edible"
 
 
-def random_score_for_label(label: str) -> int:
+def random_score_for_label(label: str, min_confidence: float) -> int:
+    threshold = int(min_confidence)
     if label == "edible":
-        return random.randint(95, 99)
+        return random.randint(threshold, 99)
     if label == "not_mushroom":
         return random.randint(10, 39)
     if label == "poisonous":
-        return random.randint(40, 94)
+        return random.randint(40, max(40, threshold - 1))
     raise ValueError("Prediction label must be edible, poisonous, or not_mushroom")
 
 
